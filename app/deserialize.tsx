@@ -1,6 +1,11 @@
 "use client";
 /// <reference types="react/experimental" />
-import { ReactNode, useRef, unstable_postpone as postpone } from "react";
+import React, {
+  ReactNode,
+  useRef,
+  unstable_postpone as postpone,
+  use,
+} from "react";
 import * as RSDW from "react-server-dom-webpack/client";
 
 function stringToStream(input: string) {
@@ -13,15 +18,27 @@ function stringToStream(input: string) {
   });
 }
 
-export function DeserializeRSC({ payload }: { payload: string }) {
-  console.log(RSDW);
-  const ref = useRef<Promise<ReactNode> | null>(null);
+export function DeserializeRSC({
+  payload,
+  cache,
+}: {
+  payload: string;
+  cache: { current: Promise<ReactNode> | null };
+}) {
   if (typeof window === "undefined") {
-    postpone();
+    const rscManifest = __RSC_MANIFEST["/page"];
+    cache.current = RSDW.createFromReadableStream(stringToStream(payload), {
+      moduleLoading: rscManifest.moduleLoading,
+      ssrManifest: rscManifest.ssrModuleMapping,
+    });
+    // postpone();
   }
-  if (!ref.current) {
+  if (!cache.current) {
+    console.log("setting cache");
     const stream = stringToStream(payload);
-    ref.current = RSDW.createFromReadableStream(stream, {});
+    cache.current = RSDW.createFromReadableStream(stream, {});
   }
-  return ref.current;
+  // console.log(cache.current);
+  const el = use(cache.current!);
+  return <>{el}</>;
 }

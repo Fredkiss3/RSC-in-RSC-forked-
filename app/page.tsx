@@ -22,18 +22,18 @@ async function streamToString(stream: ReadableStream) {
   return read();
 }
 
-
-
 export default async function Home() {
   const manifest = globalThis.__RSC_MANIFEST?.["/page"]?.clientModules ?? {};
   const stream = RSDW.renderToReadableStream(<Funky />, manifest);
+
   const res = await streamToString(stream);
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
       <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
         <pre>{res}</pre>
-        <DeserializeRSC payload={res} />
+        <br />
+        <DeserializeRSC payload={res} cache={{ current: null }} />
       </div>
     </main>
   );

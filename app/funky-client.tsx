@@ -4,5 +4,5 @@ import { useState } from "react";
 
 export function FunkyClient() {
   useState(false);
-  return <></>;
+  return <strong>Hello, this is a client component</strong>;
 }
