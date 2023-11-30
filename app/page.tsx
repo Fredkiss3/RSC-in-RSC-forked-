@@ -1,40 +1,44 @@
 import Image from "next/image";
 import * as RSDW from "react-server-dom-webpack/server.edge";
+import * as React from "react";
 import { Funky } from "./funky";
 import { DeserializeRSC } from "./deserialize";
+// import { unstable_noStore } from "next/cache";
 
 async function streamToString(stream: ReadableStream) {
-  const reader = stream.getReader();
-  const textDecoder = new TextDecoder();
-  let result = "";
+    const reader = stream.getReader();
+    const textDecoder = new TextDecoder();
+    let result = "";
 
-  async function read() {
-    const { done, value } = await reader.read();
+    async function read() {
+        const { done, value } = await reader.read();
 
-    if (done) {
-      return result;
+        if (done) {
+            return result;
+        }
+
+        result += textDecoder.decode(value, { stream: true });
+        return read();
     }
 
-    result += textDecoder.decode(value, { stream: true });
     return read();
-  }
-
-  return read();
 }
 
 export default async function Home() {
-  const manifest = globalThis.__RSC_MANIFEST?.["/page"]?.clientModules ?? {};
-  const stream = RSDW.renderToReadableStream(<Funky />, manifest);
+    // unstable_noStore();
+    // @ts-expect-error
+    const manifest = globalThis.__RSC_MANIFEST?.["/page"]?.clientModules ?? {};
+    const stream = RSDW.renderToReadableStream(<Funky />, manifest);
 
-  const res = await streamToString(stream);
+    const res = await streamToString(stream);
 
-  return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <pre>{res}</pre>
-        <br />
-        <DeserializeRSC payload={res} cache={{ current: null }} />
-      </div>
-    </main>
-  );
+    return (
+        <main className="flex min-h-screen flex-col items-center justify-between p-24">
+            <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
+                <pre>{res}</pre>
+                <br />
+                <DeserializeRSC payload={res} cache={{ current: null }} />
+            </div>
+        </main>
+    );
 }
