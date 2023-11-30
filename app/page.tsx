@@ -1,7 +1,7 @@
 import Image from "next/image";
 import * as RSDW from "react-server-dom-webpack/server.edge";
 import * as React from "react";
-import { Funky } from "./funky";
+import { Cached } from "./funky";
 import { DeserializeRSC } from "./deserialize";
 import { unstable_cache } from "next/cache";
 // import { unstable_noStore } from "next/cache";
@@ -30,7 +30,7 @@ const getCachedRender = unstable_cache(
         const manifest =
             // @ts-expect-error
             globalThis.__RSC_MANIFEST?.["/page"]?.clientModules ?? {};
-        const stream = RSDW.renderToReadableStream(<Funky />, manifest);
+        const stream = RSDW.renderToReadableStream(<Cached />, manifest);
 
         const res = await streamToString(stream);
         return res;
@@ -49,7 +49,7 @@ export default async function Home() {
     return (
         <main className="flex min-h-screen flex-col items-center justify-between p-24">
             <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-                <pre>{res}</pre>
+                {/* <pre>{res}</pre> */}
                 <br />
                 <DeserializeRSC payload={res} cache={{ current: null }} />
             </div>
